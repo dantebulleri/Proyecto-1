@@ -15,12 +15,12 @@
    ================================================================ */
 
 const FIREBASE_CONFIG = {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyDOh7xmN2eqSpiojvbBZxDzy0ocgiocj84",
+    authDomain: "seguimiento-de-carrera.firebaseapp.com",
+    projectId: "seguimiento-de-carrera",
+    storageBucket: "seguimiento-de-carrera.firebasestorage.app",
+    messagingSenderId: "885265818809",
+    appId: "1:885265818809:web:c905e01c73dfa9241aa768"
 };
 
 // ======================== INIT ========================
