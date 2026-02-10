@@ -1218,3 +1218,196 @@ body {
     .kpi-card { gap: 12px; padding: 16px; }
     .kpi-value { font-size: 1.3rem; }
 }
+
+/* ================================================================
+   AUTH SCREEN
+   ================================================================ */
+.auth-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-screen.hidden { display: none; }
+
+.auth-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%);
+}
+
+.auth-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(59,130,246,0.2) 0%, transparent 50%);
+}
+
+.auth-card {
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: modalSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-brand-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--purple-600), var(--blue-600));
+    border-radius: var(--radius-lg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.auth-brand h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--gray-800);
+}
+
+.auth-brand p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.auth-tabs {
+    display: flex;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 24px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.auth-tab.active {
+    background: var(--white);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.auth-form.hidden { display: none; }
+
+.auth-submit {
+    width: 100%;
+    padding: 11px;
+    margin-top: 8px;
+    font-size: 0.95rem;
+}
+
+.auth-forgot {
+    width: 100%;
+    font-size: 0.82rem;
+    margin-top: 4px;
+}
+
+.auth-error {
+    padding: 10px 14px;
+    background: var(--red-50);
+    color: var(--red-600);
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.auth-error.hidden { display: none; }
+
+/* Sidebar user */
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.78rem;
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-logout {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.sidebar-logout:hover {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+}
+
+/* App wrapper */
+.app-wrapper { display: contents; }
+.app-wrapper.hidden { display: none; }
+
+/* Auth loading spinner */
+.auth-spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+    .auth-card { padding: 28px 20px; }
+    .auth-brand h1 { font-size: 1.3rem; }
+}

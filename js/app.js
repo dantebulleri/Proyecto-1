@@ -80,6 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // ======================== STATE ========================
 function saveState() {
     localStorage.setItem(APP_KEY, JSON.stringify(state));
+    // Sync to cloud if user is logged in
+    if (typeof debouncedCloudSave === 'function') {
+        debouncedCloudSave();
+    }
 }
 
 function loadState() {
