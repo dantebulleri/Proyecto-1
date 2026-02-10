@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrera - Seguimiento Académico</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Mi Carrera</h2>
+            <button class="sidebar-toggle" id="sidebarToggle">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
+            <li><a href="#" data-section="plan">Plan de Estudios</a></li>
+            <li><a href="#" data-section="materias">Mis Materias</a></li>
+            <li><a href="#" data-section="estadisticas">Estadísticas</a></li>
+            <li><a href="#" data-section="config">Configuración</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content" id="mainContent">
+        <header class="top-bar">
+            <button class="menu-btn" id="menuBtn">&#9776;</button>
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section class="section" id="section-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <span class="stat-value" id="statPromedio">-</span>
+                    <span class="stat-label">Promedio General</span>
+                </div>
+                <div class="stat-card stat-success">
+                    <span class="stat-value" id="statAprobadas">0</span>
+                    <span class="stat-label">Materias Aprobadas</span>
+                </div>
+                <div class="stat-card stat-warning">
+                    <span class="stat-value" id="statEnCurso">0</span>
+                    <span class="stat-label">En Curso</span>
+                </div>
+                <div class="stat-card stat-danger">
+                    <span class="stat-value" id="statPendientes">0</span>
+                    <span class="stat-label">Pendientes</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Progreso de la Carrera</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                    <div class="progress-details">
+                        <span id="progressDetail">0 de 0 materias completadas</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Promedios</h3>
+                    <div class="averages-list">
+                        <div class="average-item">
+                            <span>Promedio sin aplazos</span>
+                            <strong id="avgSinAplazos">-</strong>
+                        </div>
+                        <div class="average-item">
+                            <span>Promedio con aplazos</span>
+                            <strong id="avgConAplazos">-</strong>
+                        </div>
+                        <div class="average-item">
+                            <span>Nota más alta</span>
+                            <strong id="notaMasAlta">-</strong>
+                        </div>
+                        <div class="average-item">
+                            <span>Nota más baja (aprobada)</span>
+                            <strong id="notaMasBaja">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Rendimiento por Año</h3>
+                    <div class="chart-container" id="chartAnios"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Distribución de Notas</h3>
+                    <div class="chart-container" id="chartNotas"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PLAN DE ESTUDIOS -->
+        <section class="section hidden" id="section-plan">
+            <div class="section-header">
+                <h2>Plan de Estudios</h2>
+                <button class="btn btn-primary" id="btnAgregarMateria">+ Agregar Materia</button>
+            </div>
+
+            <div class="filters">
+                <select id="filtroAnio" class="input-select">
+                    <option value="">Todos los años</option>
+                </select>
+                <select id="filtroCuatri" class="input-select">
+                    <option value="">Todos los cuatrimestres</option>
+                    <option value="1">1° Cuatrimestre</option>
+                    <option value="2">2° Cuatrimestre</option>
+                    <option value="anual">Anual</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="tablaPlan">
+                    <thead>
+                        <tr>
+                            <th>Materia</th>
+                            <th>Año</th>
+                            <th>Cuatrimestre</th>
+                            <th>Horas/Créditos</th>
+                            <th>Correlativas</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyPlan"></tbody>
+                </table>
+            </div>
+            <p class="empty-msg hidden" id="emptyPlan">No hay materias cargadas. Agregá tu primera materia para comenzar.</p>
+        </section>
+
+        <!-- MIS MATERIAS (detalle de notas) -->
+        <section class="section hidden" id="section-materias">
+            <div class="section-header">
+                <h2>Mis Materias - Detalle de Notas</h2>
+            </div>
+
+            <div class="filters">
+                <select id="filtroEstado" class="input-select">
+                    <option value="">Todos los estados</option>
+                    <option value="aprobada">Aprobadas</option>
+                    <option value="cursando">Cursando</option>
+                    <option value="pendiente">Pendientes</option>
+                    <option value="libre">Libre</option>
+                </select>
+                <input type="text" id="buscarMateria" class="input-text" placeholder="Buscar materia...">
+            </div>
+
+            <div class="materias-cards" id="materiasCards"></div>
+            <p class="empty-msg hidden" id="emptyMaterias">No hay materias que coincidan con el filtro.</p>
+        </section>
+
+        <!-- ESTADÍSTICAS -->
+        <section class="section hidden" id="section-estadisticas">
+            <div class="section-header">
+                <h2>Estadísticas</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="statTotalMaterias">0</span>
+                    <span class="stat-label">Total Materias</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statPorcentaje">0%</span>
+                    <span class="stat-label">Completado</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statMejorMateria">-</span>
+                    <span class="stat-label">Mejor Nota</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statPromedioAprobadas">-</span>
+                    <span class="stat-label">Promedio Aprobadas</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card full-width">
+                    <h3>Progreso por Año</h3>
+                    <div id="progressPorAnio"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Materias por Estado</h3>
+                    <div class="chart-container" id="chartEstados"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Historial de Notas</h3>
+                    <div class="chart-container" id="chartHistorial"></div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Detalle Completo</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Año</th>
+                                    <th>Estado</th>
+                                    <th>Nota Final</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyEstadisticas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONFIGURACIÓN -->
+        <section class="section hidden" id="section-config">
+            <div class="section-header">
+                <h2>Configuración</h2>
+            </div>
+
+            <div class="card">
+                <h3>Datos de la Carrera</h3>
+                <div class="form-group">
+                    <label>Nombre de la Carrera</label>
+                    <input type="text" id="configCarrera" class="input-text" placeholder="Ej: Ingeniería en Sistemas">
+                </div>
+                <div class="form-group">
+                    <label>Universidad</label>
+                    <input type="text" id="configUniversidad" class="input-text" placeholder="Ej: Universidad Nacional...">
+                </div>
+                <div class="form-group">
+                    <label>Duración (años)</label>
+                    <input type="number" id="configDuracion" class="input-text" min="1" max="10" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Nota mínima para aprobar</label>
+                    <input type="number" id="configNotaMin" class="input-text" min="1" max="10" value="4">
+                </div>
+                <div class="form-group">
+                    <label>Escala de notas máxima</label>
+                    <input type="number" id="configNotaMax" class="input-text" min="5" max="100" value="10">
+                </div>
+                <button class="btn btn-primary" id="btnGuardarConfig">Guardar Configuración</button>
+            </div>
+
+            <div class="card">
+                <h3>Datos</h3>
+                <div class="config-actions">
+                    <button class="btn btn-secondary" id="btnExportar">Exportar Datos (JSON)</button>
+                    <label class="btn btn-secondary">
+                        Importar Datos
+                        <input type="file" id="btnImportar" accept=".json" hidden>
+                    </label>
+                    <button class="btn btn-danger" id="btnReset">Borrar Todos los Datos</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Agregar/Editar Materia -->
+    <div class="modal-overlay hidden" id="modalMateria">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalMateriaTitle">Agregar Materia</h3>
+                <button class="modal-close" id="modalMateriaClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="materiaId">
+                <div class="form-group">
+                    <label>Nombre de la Materia *</label>
+                    <input type="text" id="materiaNombre" class="input-text" placeholder="Ej: Análisis Matemático I" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Año *</label>
+                        <select id="materiaAnio" class="input-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cuatrimestre *</label>
+                        <select id="materiaCuatri" class="input-select">
+                            <option value="1">1° Cuatrimestre</option>
+                            <option value="2">2° Cuatrimestre</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Horas / Créditos</label>
+                        <input type="number" id="materiaCreditos" class="input-text" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="materiaEstado" class="input-select">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="cursando">Cursando</option>
+                            <option value="aprobada">Aprobada</option>
+                            <option value="libre">Libre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correlativas (seleccionar materias previas)</label>
+                    <div class="correlativas-list" id="correlativasList"></div>
+                </div>
+
+                <!-- Sección notas: visible según estado -->
+                <div id="seccionNotas">
+                    <h4>Notas</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>1° Parcial</label>
+                            <input type="number" id="nota1Parcial" class="input-text" min="0" max="10" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>2° Parcial</label>
+                            <input type="number" id="nota2Parcial" class="input-text" min="0" max="10" step="0.5">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Recuperatorio</label>
+                            <input type="number" id="notaRecuperatorio" class="input-text" min="0" max="10" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Trabajo Práctico</label>
+                            <input type="number" id="notaTP" class="input-text" min="0" max="10" step="0.5">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Final</label>
+                            <input type="number" id="notaFinal" class="input-text" min="0" max="10" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de aprobación</label>
+                            <input type="date" id="fechaAprobacion" class="input-text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observaciones</label>
+                        <textarea id="materiaObs" class="input-text" rows="2" placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalMateriaCancel">Cancelar</button>
+                <button class="btn btn-primary" id="modalMateriaSave">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Confirmación -->
+    <div class="modal-overlay hidden" id="modalConfirm">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar</h3>
+                <button class="modal-close" id="modalConfirmClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMsg">¿Estás seguro?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="confirmCancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirmOk">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
