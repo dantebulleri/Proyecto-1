@@ -4,16 +4,67 @@
 
 const APP_KEY = 'unitrack_data';
 
-let state = {
+// ======================== PLAN POR DEFECTO ========================
+const DEFAULT_STATE = {
     config: {
-        carrera: '',
-        universidad: '',
+        carrera: 'Licenciatura en Economía',
+        universidad: 'Universidad Nacional de Rosario - FCEyE',
         duracion: 5,
         notaMin: 4,
         notaMax: 10,
     },
-    materias: [],
+    materias: [
+        // ===== PRIMER AÑO =====
+        { id:'1_01_1', nombre:'Introducción a las Ciencias Sociales', anio:1, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_02_1', nombre:'Introducción a la Economía', anio:1, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_03_1', nombre:'Introducción a la Administración', anio:1, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_04_1', nombre:'Derecho Constitucional y Administrativo', anio:1, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_05_2', nombre:'Introducción a la Contabilidad', anio:1, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_06_2', nombre:'Introducción a la Matemática', anio:1, cuatrimestre:'2', creditos:96, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'1_07_2', nombre:'Instituciones del Derecho Privado', anio:1, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+
+        // ===== SEGUNDO AÑO =====
+        { id:'2_08_1', nombre:'Economía General', anio:2, cuatrimestre:'1', creditos:96, estado:'pendiente', correlativas:['1_02_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_09_1', nombre:'Matemática para Economistas I', anio:2, cuatrimestre:'1', creditos:96, estado:'pendiente', correlativas:['1_06_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_10_1', nombre:'Sociología', anio:2, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['1_01_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_11_1', nombre:'Estadística I', anio:2, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['1_06_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_12_2', nombre:'Matemática para Economistas II', anio:2, cuatrimestre:'2', creditos:96, estado:'pendiente', correlativas:['1_06_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_13_2', nombre:'Estadística II', anio:2, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['2_11_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_14_2', nombre:'Macroeconomía I', anio:2, cuatrimestre:'2', creditos:96, estado:'pendiente', correlativas:['2_08_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'2_15_2', nombre:'Historia Económica y Social', anio:2, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['1_01_1','1_02_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+
+        // ===== TERCER AÑO =====
+        { id:'3_16_1', nombre:'Microeconomía I', anio:3, cuatrimestre:'1', creditos:96, estado:'pendiente', correlativas:['2_08_1','2_12_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_17_1', nombre:'Matemática para Economistas III', anio:3, cuatrimestre:'1', creditos:96, estado:'pendiente', correlativas:['2_09_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_18_1', nombre:'Economía Internacional', anio:3, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['2_14_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_19_1', nombre:'Indicadores Económicos y Cuentas Nacionales', anio:3, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['1_05_2','2_11_1','2_14_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_20_2', nombre:'Econometría I', anio:3, cuatrimestre:'2', creditos:96, estado:'pendiente', correlativas:['2_13_2','3_17_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_21_2', nombre:'Macroeconomía II', anio:3, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['2_14_2','3_18_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_22_2', nombre:'Economía Regional', anio:3, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['2_08_1','2_10_1','2_15_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'3_23_2', nombre:'Economía Monetaria', anio:3, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['2_14_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+
+        // ===== CUARTO AÑO =====
+        { id:'4_24_1', nombre:'Microeconomía II', anio:4, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['3_16_1','3_17_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_25_1', nombre:'Finanzas Corporativas y de Mercados de Capitales', anio:4, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['1_03_1','1_05_2','2_14_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_26_1', nombre:'Análisis de la Estructura Económica Argentina', anio:4, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['3_19_1','3_22_2','3_23_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_27_1', nombre:'Economía del Sector Público', anio:4, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['1_04_1','1_07_2','2_14_2','3_16_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_28_2', nombre:'Teoría Macroeconómica', anio:4, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['3_21_2','3_23_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_29_2', nombre:'Economía de Empresas', anio:4, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['4_24_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_30_2', nombre:'Asignatura Optativa I (Economía)', anio:4, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'4_31_2', nombre:'Asignatura Optativa II (Economía)', anio:4, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+
+        // ===== QUINTO AÑO =====
+        { id:'5_32_1', nombre:'Historia del Pensamiento Económico', anio:5, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['2_10_1','2_14_2','2_15_2','3_16_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_33_1', nombre:'Evaluación Social de Proyectos de Inversión', anio:5, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:['4_25_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_34_1', nombre:'Asignatura Electiva (LEc)', anio:5, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_35_1', nombre:'Asignatura Optativa III (Economía)', anio:5, cuatrimestre:'1', creditos:64, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_36_2', nombre:'Teoría y Política Económica Argentina', anio:5, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['4_26_1','5_32_1'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_37_2', nombre:'Teoría del Crecimiento y Desarrollo Económico', anio:5, cuatrimestre:'2', creditos:64, estado:'pendiente', correlativas:['4_28_2'], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+        { id:'5_38', nombre:'Seminario de Integración y Taller de Metodología de la Investigación', anio:5, cuatrimestre:'anual', creditos:180, estado:'pendiente', correlativas:[], nota1Parcial:null, nota2Parcial:null, notaRecuperatorio:null, notaTP:null, notaFinal:null, fechaAprobacion:'', observaciones:'' },
+    ],
 };
+
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
 // ======================== INIT ========================
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,6 +91,10 @@ function loadState() {
                 config: { ...state.config, ...(parsed.config || {}) },
                 materias: Array.isArray(parsed.materias) ? parsed.materias : [],
             };
+        } else {
+            // Primera vez: cargar plan por defecto y guardarlo
+            state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            saveState();
         }
     } catch (e) {
         console.error('Error loading state:', e);
@@ -903,14 +958,11 @@ function resetData() {
     btnOk.parentNode.replaceChild(newBtn, btnOk);
 
     newBtn.addEventListener('click', () => {
-        state = {
-            config: { carrera: '', universidad: '', duracion: 5, notaMin: 4, notaMax: 10 },
-            materias: [],
-        };
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
         saveState();
         renderAll();
         closeConfirmModal();
-        toast('Todos los datos fueron borrados', 'info');
+        toast('Datos reiniciados al plan original', 'info');
     });
 }
 
