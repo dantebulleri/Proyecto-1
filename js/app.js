@@ -1,5 +1,8 @@
-// === ESTADO GLOBAL ===
-const APP_KEY = 'miCarrera';
+/* ================================================================
+   UniTrack — Academic Tracking Application
+   ================================================================ */
+
+const APP_KEY = 'unitrack_data';
 
 let state = {
     config: {
@@ -12,97 +15,151 @@ let state = {
     materias: [],
 };
 
-// === INICIALIZACIÓN ===
+// ======================== INIT ========================
 document.addEventListener('DOMContentLoaded', () => {
-    cargarDatos();
+    loadState();
     initNavigation();
     initModals();
     initConfig();
     initFilters();
+    injectSVGDefs();
     renderAll();
 });
 
-// === PERSISTENCIA ===
-function guardarDatos() {
+// ======================== STATE ========================
+function saveState() {
     localStorage.setItem(APP_KEY, JSON.stringify(state));
 }
 
-function cargarDatos() {
-    const saved = localStorage.getItem(APP_KEY);
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            state = { ...state, ...parsed };
-        } catch (e) {
-            console.error('Error al cargar datos:', e);
+function loadState() {
+    try {
+        const raw = localStorage.getItem(APP_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            state = {
+                config: { ...state.config, ...(parsed.config || {}) },
+                materias: Array.isArray(parsed.materias) ? parsed.materias : [],
+            };
         }
+    } catch (e) {
+        console.error('Error loading state:', e);
     }
 }
 
-// === NAVEGACIÓN ===
-function initNavigation() {
-    const links = document.querySelectorAll('.nav-links a');
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebarToggle = document.getElementById('sidebarToggle');
+// ======================== SVG GRADIENT ========================
+function injectSVGDefs() {
+    const svg = document.querySelector('.progress-ring');
+    if (!svg) return;
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    defs.innerHTML = `
+        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#8b5cf6"/>
+            <stop offset="100%" stop-color="#3b82f6"/>
+        </linearGradient>
+    `;
+    svg.insertBefore(defs, svg.firstChild);
+}
 
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
+// ======================== NAVIGATION ========================
+function initNavigation() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const menuBtn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('sidebarClose');
+
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', e => {
             e.preventDefault();
-            const section = link.dataset.section;
-            navigateTo(section);
-            sidebar.classList.remove('open');
+            navigateTo(link.dataset.section);
+            closeSidebar();
         });
     });
 
-    menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-    sidebarToggle.addEventListener('click', () => sidebar.classList.remove('open'));
+    menuBtn.addEventListener('click', () => openSidebar());
+    closeBtn.addEventListener('click', () => closeSidebar());
+    overlay.addEventListener('click', () => closeSidebar());
 }
 
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+const pageMeta = {
+    dashboard:    { title: 'Dashboard', subtitle: 'Resumen de tu carrera' },
+    plan:         { title: 'Plan de Estudios', subtitle: 'Gestión de materias y correlativas' },
+    materias:     { title: 'Mis Materias', subtitle: 'Detalle de notas y calificaciones' },
+    estadisticas: { title: 'Estadísticas', subtitle: 'Análisis de tu rendimiento' },
+    config:       { title: 'Configuración', subtitle: 'Ajustes de la aplicación' },
+};
+
 function navigateTo(section) {
-    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(`section-${section}`).classList.remove('hidden');
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    const target = document.getElementById(`section-${section}`);
+    if (target) {
+        target.classList.remove('hidden');
+        // Re-trigger animation
+        target.style.animation = 'none';
+        target.offsetHeight; // reflow
+        target.style.animation = '';
+    }
 
-    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-    document.querySelector(`.nav-links a[data-section="${section}"]`).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+    const activeLink = document.querySelector(`.nav-item[data-section="${section}"]`);
+    if (activeLink) activeLink.classList.add('active');
 
-    const titles = {
-        dashboard: 'Dashboard',
-        plan: 'Plan de Estudios',
-        materias: 'Mis Materias',
-        estadisticas: 'Estadísticas',
-        config: 'Configuración',
-    };
-    document.getElementById('pageTitle').textContent = titles[section] || section;
+    const meta = pageMeta[section] || {};
+    document.getElementById('pageTitle').textContent = meta.title || section;
+    document.getElementById('pageSubtitle').textContent = meta.subtitle || '';
 
     renderAll();
 }
 
-// === RENDER GENERAL ===
+// ======================== RENDER ALL ========================
 function renderAll() {
+    renderSidebarInfo();
     renderDashboard();
     renderPlan();
     renderMaterias();
     renderEstadisticas();
     loadConfigForm();
-    updateFiltroAnios();
+    updateFilterYears();
 }
 
-// === DASHBOARD ===
+function renderSidebarInfo() {
+    const { carrera, universidad } = state.config;
+    document.getElementById('sidebarCareerName').textContent = carrera || 'Configurá tu carrera';
+    document.getElementById('sidebarUniName').textContent = universidad || '';
+
+    const total = state.materias.length;
+    const aprobadas = state.materias.filter(m => m.estado === 'aprobada').length;
+    const pct = total > 0 ? Math.round((aprobadas / total) * 100) : 0;
+
+    document.getElementById('sidebarProgressPct').textContent = pct + '%';
+    document.getElementById('sidebarProgressFill').style.width = pct + '%';
+}
+
+// ======================== DASHBOARD ========================
 function renderDashboard() {
     const materias = state.materias;
     const aprobadas = materias.filter(m => m.estado === 'aprobada');
     const cursando = materias.filter(m => m.estado === 'cursando');
-    const pendientes = materias.filter(m => m.estado === 'pendiente');
+    const pendientes = materias.filter(m => m.estado === 'pendiente' || m.estado === 'libre');
     const total = materias.length;
 
-    // Promedio general (notas finales de aprobadas)
-    const notasFinales = aprobadas
+    // Notas finales de aprobadas
+    const notasAprobadas = aprobadas
         .filter(m => m.notaFinal != null && m.notaFinal !== '')
-        .map(m => parseFloat(m.notaFinal));
+        .map(m => ({ nota: parseFloat(m.notaFinal), nombre: m.nombre }));
 
-    const promedio = notasFinales.length > 0
-        ? (notasFinales.reduce((a, b) => a + b, 0) / notasFinales.length).toFixed(2)
+    const notas = notasAprobadas.map(n => n.nota);
+    const promedio = notas.length > 0
+        ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2)
         : '-';
 
     document.getElementById('statPromedio').textContent = promedio;
@@ -110,18 +167,22 @@ function renderDashboard() {
     document.getElementById('statEnCurso').textContent = cursando.length;
     document.getElementById('statPendientes').textContent = pendientes.length;
 
-    // Progreso
+    // Progress ring
     const pct = total > 0 ? Math.round((aprobadas.length / total) * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressText').textContent = pct + '%';
-    document.getElementById('progressDetail').textContent =
-        `${aprobadas.length} de ${total} materias completadas`;
+    const circumference = 2 * Math.PI * 60; // r=60
+    const offset = circumference - (pct / 100) * circumference;
+    const ring = document.getElementById('progressRing');
+    if (ring) {
+        ring.style.strokeDasharray = circumference;
+        ring.style.strokeDashoffset = offset;
+    }
+    document.getElementById('progressRingPct').textContent = pct + '%';
+    document.getElementById('progressAprobadas').textContent = aprobadas.length;
+    document.getElementById('progressTotal').textContent = total;
+    document.getElementById('progressRestantes').textContent = total - aprobadas.length;
 
-    // Promedios detallados
-    const notasSinAplazos = aprobadas
-        .filter(m => m.notaFinal != null && m.notaFinal !== '' && parseFloat(m.notaFinal) >= state.config.notaMin)
-        .map(m => parseFloat(m.notaFinal));
-
+    // Averages
+    const notasSinAplazos = notas.filter(n => n >= state.config.notaMin);
     const todasLasNotas = materias
         .filter(m => m.notaFinal != null && m.notaFinal !== '')
         .map(m => parseFloat(m.notaFinal));
@@ -136,16 +197,29 @@ function renderDashboard() {
             ? (todasLasNotas.reduce((a, b) => a + b, 0) / todasLasNotas.length).toFixed(2)
             : '-';
 
-    document.getElementById('notaMasAlta').textContent =
-        notasFinales.length > 0 ? Math.max(...notasFinales) : '-';
+    // Best / worst
+    if (notasAprobadas.length > 0) {
+        const best = notasAprobadas.reduce((a, b) => a.nota > b.nota ? a : b);
+        document.getElementById('notaMasAlta').textContent = best.nota;
+        document.getElementById('mejorMateriaName').textContent = best.nombre;
 
-    const aprobMin = notasFinales.filter(n => n >= state.config.notaMin);
-    document.getElementById('notaMasBaja').textContent =
-        aprobMin.length > 0 ? Math.min(...aprobMin) : '-';
+        const aprobMin = notasAprobadas.filter(n => n.nota >= state.config.notaMin);
+        if (aprobMin.length > 0) {
+            const worst = aprobMin.reduce((a, b) => a.nota < b.nota ? a : b);
+            document.getElementById('notaMasBaja').textContent = worst.nota;
+            document.getElementById('peorMateriaName').textContent = worst.nombre;
+        } else {
+            document.getElementById('notaMasBaja').textContent = '-';
+            document.getElementById('peorMateriaName').textContent = '-';
+        }
+    } else {
+        document.getElementById('notaMasAlta').textContent = '-';
+        document.getElementById('mejorMateriaName').textContent = '-';
+        document.getElementById('notaMasBaja').textContent = '-';
+        document.getElementById('peorMateriaName').textContent = '-';
+    }
 
-    // Gráfico por años
     renderChartAnios();
-    // Gráfico distribución de notas
     renderChartNotas();
 }
 
@@ -153,7 +227,20 @@ function renderChartAnios() {
     const container = document.getElementById('chartAnios');
     container.innerHTML = '';
     const duracion = state.config.duracion;
-    const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+    if (duracion === 0 || state.materias.length === 0) {
+        container.innerHTML = '<div class="chart-empty">Agregá materias para ver el avance por año</div>';
+        return;
+    }
+
+    const gradients = [
+        'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+        'linear-gradient(90deg, #3b82f6, #60a5fa)',
+        'linear-gradient(90deg, #10b981, #34d399)',
+        'linear-gradient(90deg, #f59e0b, #fbbf24)',
+        'linear-gradient(90deg, #ef4444, #f87171)',
+        'linear-gradient(90deg, #ec4899, #f472b6)',
+    ];
 
     for (let y = 1; y <= duracion; y++) {
         const total = state.materias.filter(m => m.anio == y).length;
@@ -161,21 +248,15 @@ function renderChartAnios() {
         const pct = total > 0 ? Math.round((aprob / total) * 100) : 0;
 
         const row = document.createElement('div');
-        row.className = 'bar-row';
+        row.className = 'chart-bar-row';
         row.innerHTML = `
-            <span class="bar-label">Año ${y}</span>
-            <div class="bar-track">
-                <div class="bar-value" style="width: ${pct}%; background: ${colors[y % colors.length]}">
-                    ${pct > 15 ? aprob + '/' + total : ''}
-                </div>
+            <span class="chart-bar-label">${y}° Año</span>
+            <div class="chart-bar-track">
+                <div class="chart-bar-fill" style="width:${pct}%;background:${gradients[(y - 1) % gradients.length]}">${pct > 20 ? aprob + '/' + total : ''}</div>
             </div>
-            <span class="bar-number">${pct}%</span>
+            <span class="chart-bar-num">${pct}%</span>
         `;
         container.appendChild(row);
-    }
-
-    if (duracion === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Configurá la duración de tu carrera</p>';
     }
 }
 
@@ -183,175 +264,206 @@ function renderChartNotas() {
     const container = document.getElementById('chartNotas');
     container.innerHTML = '';
 
-    const notaMax = state.config.notaMax;
-    const notaMin = state.config.notaMin;
+    const max = state.config.notaMax;
+    const min = state.config.notaMin;
     const buckets = {};
-
-    for (let i = 1; i <= notaMax; i++) {
-        buckets[i] = 0;
-    }
+    for (let i = 1; i <= max; i++) buckets[i] = 0;
 
     state.materias
         .filter(m => m.notaFinal != null && m.notaFinal !== '')
         .forEach(m => {
-            const nota = Math.round(parseFloat(m.notaFinal));
-            if (nota >= 1 && nota <= notaMax) buckets[nota]++;
+            const n = Math.round(parseFloat(m.notaFinal));
+            if (n >= 1 && n <= max) buckets[n]++;
         });
 
     const maxCount = Math.max(...Object.values(buckets), 1);
 
-    for (let i = 1; i <= notaMax; i++) {
+    if (maxCount === 0 || state.materias.filter(m => m.notaFinal != null && m.notaFinal !== '').length === 0) {
+        container.innerHTML = '<div class="chart-empty">Cargá notas finales para ver la distribución</div>';
+        return;
+    }
+
+    for (let i = 1; i <= max; i++) {
         const count = buckets[i];
         const pct = (count / maxCount) * 100;
-        let color = i >= notaMin ? (i >= 7 ? 'var(--success)' : 'var(--warning)') : 'var(--danger)';
+        let color;
+        if (i >= 7) color = 'linear-gradient(90deg, #10b981, #34d399)';
+        else if (i >= min) color = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+        else color = 'linear-gradient(90deg, #ef4444, #f87171)';
 
         const row = document.createElement('div');
-        row.className = 'bar-row';
+        row.className = 'chart-bar-row';
         row.innerHTML = `
-            <span class="bar-label">${i}</span>
-            <div class="bar-track">
-                <div class="bar-value" style="width: ${pct}%; background: ${color}">
-                    ${count > 0 ? count : ''}
-                </div>
+            <span class="chart-bar-label">${i}</span>
+            <div class="chart-bar-track">
+                <div class="chart-bar-fill" style="width:${pct}%;background:${color}">${count > 0 ? count : ''}</div>
             </div>
-            <span class="bar-number">${count}</span>
+            <span class="chart-bar-num">${count}</span>
         `;
         container.appendChild(row);
     }
 }
 
-// === PLAN DE ESTUDIOS ===
+// ======================== PLAN DE ESTUDIOS ========================
 function renderPlan() {
     const body = document.getElementById('bodyPlan');
-    const filtroAnio = document.getElementById('filtroAnio').value;
-    const filtroCuatri = document.getElementById('filtroCuatri').value;
-    const emptyMsg = document.getElementById('emptyPlan');
+    const fAnio = document.getElementById('filtroAnio').value;
+    const fCuatri = document.getElementById('filtroCuatri').value;
+    const fEstado = document.getElementById('filtroPlanEstado').value;
+    const emptyEl = document.getElementById('emptyPlan');
+    const tableCard = document.getElementById('planTableCard');
 
     let materias = [...state.materias].sort((a, b) => {
         if (a.anio !== b.anio) return a.anio - b.anio;
         if (a.cuatrimestre === b.cuatrimestre) return a.nombre.localeCompare(b.nombre);
-        return a.cuatrimestre === 'anual' ? 1 : a.cuatrimestre - b.cuatrimestre;
+        return a.cuatrimestre === 'anual' ? 1 : String(a.cuatrimestre).localeCompare(String(b.cuatrimestre));
     });
 
-    if (filtroAnio) materias = materias.filter(m => m.anio == filtroAnio);
-    if (filtroCuatri) materias = materias.filter(m => m.cuatrimestre === filtroCuatri);
+    if (fAnio) materias = materias.filter(m => m.anio == fAnio);
+    if (fCuatri) materias = materias.filter(m => m.cuatrimestre === fCuatri);
+    if (fEstado) materias = materias.filter(m => m.estado === fEstado);
 
     body.innerHTML = '';
 
-    if (materias.length === 0) {
-        emptyMsg.classList.remove('hidden');
-        document.querySelector('#section-plan .table-container').classList.add('hidden');
+    if (materias.length === 0 && state.materias.length === 0) {
+        emptyEl.classList.remove('hidden');
+        tableCard.style.display = 'none';
         return;
     }
 
-    emptyMsg.classList.add('hidden');
-    document.querySelector('#section-plan .table-container').classList.remove('hidden');
+    emptyEl.classList.add('hidden');
+    tableCard.style.display = '';
+
+    if (materias.length === 0) {
+        body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px;">No hay materias con ese filtro</td></tr>';
+        return;
+    }
 
     materias.forEach(m => {
-        const correlativas = (m.correlativas || [])
-            .map(id => {
-                const mat = state.materias.find(x => x.id === id);
-                return mat ? mat.nombre : '';
-            })
+        const corrs = (m.correlativas || [])
+            .map(id => state.materias.find(x => x.id === id))
             .filter(Boolean)
+            .map(x => esc(x.nombre))
             .join(', ');
 
         const cuatriLabel = m.cuatrimestre === 'anual' ? 'Anual' : `${m.cuatrimestre}° Cuatri`;
+        const notaDisplay = (m.notaFinal != null && m.notaFinal !== '') ? m.notaFinal : '-';
+        const notaClass = getNotaColorClass(m.notaFinal);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${escapeHtml(m.nombre)}</strong></td>
+            <td class="td-name">${esc(m.nombre)}</td>
             <td>${m.anio}°</td>
             <td>${cuatriLabel}</td>
             <td>${m.creditos || '-'}</td>
-            <td>${escapeHtml(correlativas) || '-'}</td>
+            <td>${corrs || '<span style="color:var(--text-muted)">-</span>'}</td>
+            <td class="td-nota ${notaClass}">${notaDisplay}</td>
             <td><span class="badge badge-${m.estado}">${capitalize(m.estado)}</span></td>
             <td>
-                <button class="btn-icon" title="Editar" onclick="editarMateria('${m.id}')">&#9998;</button>
-                <button class="btn-icon" title="Eliminar" onclick="eliminarMateria('${m.id}')">&#128465;</button>
+                <div class="td-actions">
+                    <button class="btn-icon-only" title="Editar" data-edit="${m.id}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="btn-icon-only danger" title="Eliminar" data-delete="${m.id}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
             </td>
         `;
         body.appendChild(tr);
     });
+
+    // Delegate events
+    body.querySelectorAll('[data-edit]').forEach(btn =>
+        btn.addEventListener('click', () => openMateriaModal(btn.dataset.edit))
+    );
+    body.querySelectorAll('[data-delete]').forEach(btn =>
+        btn.addEventListener('click', () => confirmDeleteMateria(btn.dataset.delete))
+    );
 }
 
-// === MIS MATERIAS (cards con notas) ===
+// ======================== MIS MATERIAS (cards) ========================
 function renderMaterias() {
     const container = document.getElementById('materiasCards');
-    const filtroEstado = document.getElementById('filtroEstado').value;
-    const busqueda = document.getElementById('buscarMateria').value.toLowerCase();
-    const emptyMsg = document.getElementById('emptyMaterias');
+    const fEstado = document.getElementById('filtroEstado').value;
+    const search = document.getElementById('buscarMateria').value.toLowerCase().trim();
+    const emptyEl = document.getElementById('emptyMaterias');
 
     let materias = [...state.materias].sort((a, b) => {
         if (a.anio !== b.anio) return a.anio - b.anio;
         return a.nombre.localeCompare(b.nombre);
     });
 
-    if (filtroEstado) materias = materias.filter(m => m.estado === filtroEstado);
-    if (busqueda) materias = materias.filter(m => m.nombre.toLowerCase().includes(busqueda));
+    if (fEstado) materias = materias.filter(m => m.estado === fEstado);
+    if (search) materias = materias.filter(m => m.nombre.toLowerCase().includes(search));
 
     container.innerHTML = '';
 
     if (materias.length === 0) {
-        emptyMsg.classList.remove('hidden');
+        emptyEl.classList.remove('hidden');
         return;
     }
-    emptyMsg.classList.add('hidden');
+    emptyEl.classList.add('hidden');
 
     materias.forEach(m => {
-        const card = document.createElement('div');
-        card.className = 'materia-card';
-
         const cuatriLabel = m.cuatrimestre === 'anual' ? 'Anual' : `${m.cuatrimestre}° Cuatri`;
 
-        const notas = [
-            { label: '1° Parcial', value: m.nota1Parcial },
-            { label: '2° Parcial', value: m.nota2Parcial },
+        const chips = [
+            { label: '1er Parcial', value: m.nota1Parcial },
+            { label: '2do Parcial', value: m.nota2Parcial },
             { label: 'Recup.', value: m.notaRecuperatorio },
             { label: 'TP', value: m.notaTP },
             { label: 'Final', value: m.notaFinal },
         ];
 
-        const notasHtml = notas.map(n => {
-            const val = n.value != null && n.value !== '' ? parseFloat(n.value) : null;
-            let cls = 'nota-none';
-            let display = '-';
-            if (val !== null) {
-                display = val;
-                if (val >= 7) cls = 'nota-alta';
-                else if (val >= state.config.notaMin) cls = 'nota-media';
-                else cls = 'nota-baja';
+        if (m.fechaAprobacion) {
+            chips.push({ label: 'Fecha', value: formatDate(m.fechaAprobacion), isDate: true });
+        }
+
+        const chipsHtml = chips.map(c => {
+            if (c.isDate) {
+                return `<div class="nota-chip"><span class="nota-chip-label">${c.label}</span><span class="nota-chip-value n-none" style="font-size:0.82rem">${c.value}</span></div>`;
             }
-            return `<div class="nota-item"><span class="nota-label">${n.label}</span><span class="nota-value ${cls}">${display}</span></div>`;
+            const val = (c.value != null && c.value !== '') ? parseFloat(c.value) : null;
+            const display = val !== null ? val : '-';
+            let cls = 'n-none';
+            if (val !== null) {
+                if (val >= 7) cls = 'n-high';
+                else if (val >= state.config.notaMin) cls = 'n-mid';
+                else cls = 'n-low';
+            }
+            return `<div class="nota-chip"><span class="nota-chip-label">${c.label}</span><span class="nota-chip-value ${cls}">${display}</span></div>`;
         }).join('');
 
-        const fechaHtml = m.fechaAprobacion
-            ? `<div class="nota-item"><span class="nota-label">Fecha</span><span class="nota-value nota-none">${formatDate(m.fechaAprobacion)}</span></div>`
-            : '';
-
+        const card = document.createElement('div');
+        card.className = 'm-card';
         card.innerHTML = `
-            <div class="materia-card-header">
-                <h4>${escapeHtml(m.nombre)}</h4>
+            <div class="m-card-top">
+                <div>
+                    <div class="m-card-title">${esc(m.nombre)}</div>
+                    <div class="m-card-meta">${m.anio}° Año &middot; ${cuatriLabel} &middot; ${m.creditos || 0} hs</div>
+                </div>
                 <span class="badge badge-${m.estado}">${capitalize(m.estado)}</span>
             </div>
-            <div class="materia-card-body">
-                <div class="materia-info">${m.anio}° Año - ${cuatriLabel} | ${m.creditos || 0} hs/créditos</div>
-                <div class="notas-grid">
-                    ${notasHtml}
-                    ${fechaHtml}
-                </div>
-                ${m.observaciones ? `<div class="materia-obs">${escapeHtml(m.observaciones)}</div>` : ''}
-            </div>
-            <div class="materia-card-actions">
-                <button class="btn btn-sm btn-secondary" onclick="editarMateria('${m.id}')">Editar</button>
-                <button class="btn btn-sm btn-danger" onclick="eliminarMateria('${m.id}')">Eliminar</button>
+            <div class="m-card-notas">${chipsHtml}</div>
+            ${m.observaciones ? `<div class="m-card-obs">${esc(m.observaciones)}</div>` : ''}
+            <div class="m-card-footer">
+                <button class="btn btn-sm btn-outline" data-edit="${m.id}">Editar</button>
+                <button class="btn btn-sm btn-danger" data-delete="${m.id}">Eliminar</button>
             </div>
         `;
         container.appendChild(card);
     });
+
+    container.querySelectorAll('[data-edit]').forEach(btn =>
+        btn.addEventListener('click', () => openMateriaModal(btn.dataset.edit))
+    );
+    container.querySelectorAll('[data-delete]').forEach(btn =>
+        btn.addEventListener('click', () => confirmDeleteMateria(btn.dataset.delete))
+    );
 }
 
-// === ESTADÍSTICAS ===
+// ======================== ESTADÍSTICAS ========================
 function renderEstadisticas() {
     const materias = state.materias;
     const aprobadas = materias.filter(m => m.estado === 'aprobada');
@@ -361,25 +473,19 @@ function renderEstadisticas() {
     document.getElementById('statPorcentaje').textContent =
         total > 0 ? Math.round((aprobadas.length / total) * 100) + '%' : '0%';
 
-    const notasAprobadas = aprobadas
-        .filter(m => m.notaFinal != null && m.notaFinal !== '')
-        .map(m => parseFloat(m.notaFinal));
+    const notasAp = aprobadas.filter(m => m.notaFinal != null && m.notaFinal !== '').map(m => parseFloat(m.notaFinal));
 
-    document.getElementById('statMejorMateria').textContent =
-        notasAprobadas.length > 0 ? Math.max(...notasAprobadas) : '-';
+    document.getElementById('statMejorNota').textContent =
+        notasAp.length > 0 ? Math.max(...notasAp) : '-';
 
     document.getElementById('statPromedioAprobadas').textContent =
-        notasAprobadas.length > 0
-            ? (notasAprobadas.reduce((a, b) => a + b, 0) / notasAprobadas.length).toFixed(2)
+        notasAp.length > 0
+            ? (notasAp.reduce((a, b) => a + b, 0) / notasAp.length).toFixed(2)
             : '-';
 
-    // Progreso por año
     renderProgressPorAnio();
-    // Chart estados
     renderChartEstados();
-    // Historial
     renderChartHistorial();
-    // Tabla detalle
     renderTablaEstadisticas();
 }
 
@@ -393,17 +499,21 @@ function renderProgressPorAnio() {
         const pct = total > 0 ? Math.round((aprob / total) * 100) : 0;
 
         const div = document.createElement('div');
-        div.className = 'year-progress';
+        div.className = 'year-progress-item';
         div.innerHTML = `
             <div class="year-progress-header">
-                <strong>Año ${y}</strong>
-                <span>${aprob} / ${total} materias (${pct}%)</span>
+                <strong>${y}° Año</strong>
+                <span>${aprob} / ${total} materias &middot; ${pct}%</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${pct}%"></div>
+            <div class="year-progress-bar">
+                <div class="year-progress-fill" style="width:${pct}%"></div>
             </div>
         `;
         container.appendChild(div);
+    }
+
+    if (state.config.duracion === 0) {
+        container.innerHTML = '<div class="chart-empty">Configurá la duración de tu carrera</div>';
     }
 }
 
@@ -411,30 +521,27 @@ function renderChartEstados() {
     const container = document.getElementById('chartEstados');
     container.innerHTML = '';
 
-    const estados = ['aprobada', 'cursando', 'pendiente', 'libre'];
-    const colores = {
-        aprobada: 'var(--success)',
-        cursando: 'var(--info)',
-        pendiente: 'var(--warning)',
-        libre: 'var(--danger)',
-    };
+    const estados = [
+        { key: 'aprobada', label: 'Aprobadas', color: 'linear-gradient(90deg, #10b981, #34d399)' },
+        { key: 'cursando', label: 'Cursando', color: 'linear-gradient(90deg, #3b82f6, #60a5fa)' },
+        { key: 'pendiente', label: 'Pendientes', color: 'linear-gradient(90deg, #f59e0b, #fbbf24)' },
+        { key: 'libre', label: 'Libre', color: 'linear-gradient(90deg, #ef4444, #f87171)' },
+    ];
 
     const total = state.materias.length || 1;
 
-    estados.forEach(est => {
-        const count = state.materias.filter(m => m.estado === est).length;
+    estados.forEach(e => {
+        const count = state.materias.filter(m => m.estado === e.key).length;
         const pct = Math.round((count / total) * 100);
 
         const row = document.createElement('div');
-        row.className = 'bar-row';
+        row.className = 'chart-bar-row';
         row.innerHTML = `
-            <span class="bar-label">${capitalize(est)}</span>
-            <div class="bar-track">
-                <div class="bar-value" style="width: ${pct}%; background: ${colores[est]}">
-                    ${pct > 10 ? count : ''}
-                </div>
+            <span class="chart-bar-label">${e.label}</span>
+            <div class="chart-bar-track">
+                <div class="chart-bar-fill" style="width:${pct}%;background:${e.color}">${pct > 12 ? count : ''}</div>
             </div>
-            <span class="bar-number">${count}</span>
+            <span class="chart-bar-num">${count}</span>
         `;
         container.appendChild(row);
     });
@@ -445,31 +552,38 @@ function renderChartHistorial() {
     container.innerHTML = '';
 
     const aprobadas = state.materias
-        .filter(m => m.estado === 'aprobada' && m.notaFinal != null && m.notaFinal !== '' && m.fechaAprobacion)
-        .sort((a, b) => new Date(a.fechaAprobacion) - new Date(b.fechaAprobacion));
+        .filter(m => m.estado === 'aprobada' && m.notaFinal != null && m.notaFinal !== '')
+        .sort((a, b) => {
+            if (a.fechaAprobacion && b.fechaAprobacion) return new Date(a.fechaAprobacion) - new Date(b.fechaAprobacion);
+            return 0;
+        });
 
     if (aprobadas.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No hay datos de historial aún</p>';
+        container.innerHTML = '<div class="chart-empty">Aún no hay notas para mostrar</div>';
         return;
     }
 
     const max = state.config.notaMax;
 
-    aprobadas.slice(-15).forEach(m => {
+    aprobadas.slice(-12).forEach(m => {
         const nota = parseFloat(m.notaFinal);
         const pct = (nota / max) * 100;
-        let color = nota >= 7 ? 'var(--success)' : nota >= state.config.notaMin ? 'var(--warning)' : 'var(--danger)';
+        let color;
+        if (nota >= 7) color = 'linear-gradient(90deg, #10b981, #34d399)';
+        else if (nota >= state.config.notaMin) color = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+        else color = 'linear-gradient(90deg, #ef4444, #f87171)';
+
+        const shortName = m.nombre.length > 14 ? m.nombre.substring(0, 14) + '...' : m.nombre;
 
         const row = document.createElement('div');
-        row.className = 'bar-row';
+        row.className = 'chart-bar-row';
+        row.title = m.nombre;
         row.innerHTML = `
-            <span class="bar-label" title="${escapeHtml(m.nombre)}">${escapeHtml(m.nombre.substring(0, 12))}${m.nombre.length > 12 ? '...' : ''}</span>
-            <div class="bar-track">
-                <div class="bar-value" style="width: ${pct}%; background: ${color}">
-                    ${nota}
-                </div>
+            <span class="chart-bar-label">${esc(shortName)}</span>
+            <div class="chart-bar-track">
+                <div class="chart-bar-fill" style="width:${pct}%;background:${color}">${nota}</div>
             </div>
-            <span class="bar-number">${nota}</span>
+            <span class="chart-bar-num">${nota}</span>
         `;
         container.appendChild(row);
     });
@@ -484,77 +598,78 @@ function renderTablaEstadisticas() {
         return a.nombre.localeCompare(b.nombre);
     });
 
+    if (materias.length === 0) {
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Sin datos</td></tr>';
+        return;
+    }
+
     materias.forEach(m => {
+        const cuatriLabel = m.cuatrimestre === 'anual' ? 'Anual' : `${m.cuatrimestre}°`;
+        const notaDisplay = (m.notaFinal != null && m.notaFinal !== '') ? m.notaFinal : '-';
+        const notaClass = getNotaColorClass(m.notaFinal);
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${escapeHtml(m.nombre)}</td>
+            <td class="td-name">${esc(m.nombre)}</td>
             <td>${m.anio}°</td>
+            <td>${cuatriLabel}</td>
             <td><span class="badge badge-${m.estado}">${capitalize(m.estado)}</span></td>
-            <td><strong>${m.notaFinal != null && m.notaFinal !== '' ? m.notaFinal : '-'}</strong></td>
-            <td>${m.fechaAprobacion ? formatDate(m.fechaAprobacion) : '-'}</td>
+            <td class="td-nota ${notaClass}">${notaDisplay}</td>
+            <td>${m.fechaAprobacion ? formatDate(m.fechaAprobacion) : '<span style="color:var(--text-muted)">-</span>'}</td>
         `;
         body.appendChild(tr);
     });
 }
 
-// === MODALS ===
+// ======================== MODALS ========================
 function initModals() {
-    // Modal materia
-    const modalMateria = document.getElementById('modalMateria');
-    const btnAgregar = document.getElementById('btnAgregarMateria');
-    const btnClose = document.getElementById('modalMateriaClose');
-    const btnCancel = document.getElementById('modalMateriaCancel');
-    const btnSave = document.getElementById('modalMateriaSave');
+    // Materia modal
+    const modal = document.getElementById('modalMateria');
+    document.getElementById('btnAgregarMateria').addEventListener('click', () => openMateriaModal());
+    document.getElementById('btnEmptyAdd').addEventListener('click', () => openMateriaModal());
+    document.getElementById('modalMateriaClose').addEventListener('click', () => closeMateriaModal());
+    document.getElementById('modalMateriaCancel').addEventListener('click', () => closeMateriaModal());
+    document.getElementById('modalMateriaSave').addEventListener('click', () => saveMateria());
+    modal.addEventListener('click', e => { if (e.target === modal) closeMateriaModal(); });
 
-    btnAgregar.addEventListener('click', () => abrirModalMateria());
-    btnClose.addEventListener('click', () => cerrarModalMateria());
-    btnCancel.addEventListener('click', () => cerrarModalMateria());
-    btnSave.addEventListener('click', () => guardarMateria());
+    // Confirm modal
+    const confirm = document.getElementById('modalConfirm');
+    document.getElementById('modalConfirmClose').addEventListener('click', () => closeConfirmModal());
+    document.getElementById('confirmCancel').addEventListener('click', () => closeConfirmModal());
+    confirm.addEventListener('click', e => { if (e.target === confirm) closeConfirmModal(); });
 
-    modalMateria.addEventListener('click', (e) => {
-        if (e.target === modalMateria) cerrarModalMateria();
-    });
-
-    // Modal confirmación
-    const modalConfirm = document.getElementById('modalConfirm');
-    document.getElementById('modalConfirmClose').addEventListener('click', () => {
-        modalConfirm.classList.add('hidden');
-    });
-    document.getElementById('confirmCancel').addEventListener('click', () => {
-        modalConfirm.classList.add('hidden');
-    });
-    modalConfirm.addEventListener('click', (e) => {
-        if (e.target === modalConfirm) modalConfirm.classList.add('hidden');
-    });
-
-    // Toggle notas según estado
-    document.getElementById('materiaEstado').addEventListener('change', toggleSeccionNotas);
+    // Estado toggle notas
+    document.getElementById('materiaEstado').addEventListener('change', toggleNotasSection);
 }
 
-function toggleSeccionNotas() {
+function toggleNotasSection() {
     const estado = document.getElementById('materiaEstado').value;
-    const seccion = document.getElementById('seccionNotas');
-    seccion.style.display = (estado === 'pendiente') ? 'none' : 'block';
+    const section = document.getElementById('seccionNotas');
+    if (estado === 'pendiente') {
+        section.classList.add('notas-hidden');
+    } else {
+        section.classList.remove('notas-hidden');
+    }
 }
 
-function abrirModalMateria(id = null) {
+function openMateriaModal(id = null) {
     const modal = document.getElementById('modalMateria');
     const title = document.getElementById('modalMateriaTitle');
 
-    // Populate año options
-    const selectAnio = document.getElementById('materiaAnio');
-    selectAnio.innerHTML = '';
+    // Populate year select
+    const selAnio = document.getElementById('materiaAnio');
+    selAnio.innerHTML = '';
     for (let i = 1; i <= state.config.duracion; i++) {
-        selectAnio.innerHTML += `<option value="${i}">${i}° Año</option>`;
+        selAnio.innerHTML += `<option value="${i}">${i}° Año</option>`;
     }
 
     // Populate correlativas
-    renderCorrelativas(id);
+    populateCorrelativas(id);
 
     if (id) {
-        title.textContent = 'Editar Materia';
         const m = state.materias.find(x => x.id === id);
         if (!m) return;
+        title.textContent = 'Editar Materia';
         document.getElementById('materiaId').value = m.id;
         document.getElementById('materiaNombre').value = m.nombre;
         document.getElementById('materiaAnio').value = m.anio;
@@ -569,7 +684,6 @@ function abrirModalMateria(id = null) {
         document.getElementById('fechaAprobacion').value = m.fechaAprobacion || '';
         document.getElementById('materiaObs').value = m.observaciones || '';
 
-        // Check correlativas
         (m.correlativas || []).forEach(cId => {
             const cb = document.querySelector(`#correlativasList input[value="${cId}"]`);
             if (cb) cb.checked = true;
@@ -589,52 +703,52 @@ function abrirModalMateria(id = null) {
         document.getElementById('materiaObs').value = '';
     }
 
-    toggleSeccionNotas();
+    toggleNotasSection();
     modal.classList.remove('hidden');
-    document.getElementById('materiaNombre').focus();
+    setTimeout(() => document.getElementById('materiaNombre').focus(), 100);
 }
 
-function renderCorrelativas(excludeId) {
+function populateCorrelativas(excludeId) {
     const container = document.getElementById('correlativasList');
     container.innerHTML = '';
 
-    const materias = state.materias.filter(m => m.id !== excludeId).sort((a, b) =>
-        a.anio !== b.anio ? a.anio - b.anio : a.nombre.localeCompare(b.nombre)
-    );
+    const materias = state.materias
+        .filter(m => m.id !== excludeId)
+        .sort((a, b) => a.anio !== b.anio ? a.anio - b.anio : a.nombre.localeCompare(b.nombre));
 
     if (materias.length === 0) {
-        container.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.85rem;">No hay materias cargadas aún</span>';
+        container.innerHTML = '<span class="corr-empty">No hay otras materias cargadas</span>';
         return;
     }
 
     materias.forEach(m => {
         const div = document.createElement('div');
-        div.className = 'correlativa-item';
+        div.className = 'corr-item';
         div.innerHTML = `
             <input type="checkbox" id="corr_${m.id}" value="${m.id}">
-            <label for="corr_${m.id}">${m.anio}° - ${escapeHtml(m.nombre)}</label>
+            <label for="corr_${m.id}">${m.anio}° - ${esc(m.nombre)}</label>
         `;
         container.appendChild(div);
     });
 }
 
-function cerrarModalMateria() {
+function closeMateriaModal() {
     document.getElementById('modalMateria').classList.add('hidden');
 }
 
-function guardarMateria() {
+function saveMateria() {
     const nombre = document.getElementById('materiaNombre').value.trim();
     if (!nombre) {
         toast('Ingresá un nombre para la materia', 'error');
+        document.getElementById('materiaNombre').focus();
         return;
     }
 
-    const id = document.getElementById('materiaId').value || generarId();
+    const id = document.getElementById('materiaId').value || genId();
     const anio = parseInt(document.getElementById('materiaAnio').value);
     const cuatrimestre = document.getElementById('materiaCuatri').value;
     const creditos = parseInt(document.getElementById('materiaCreditos').value) || 0;
     const estado = document.getElementById('materiaEstado').value;
-
     const nota1Parcial = parseNota(document.getElementById('nota1Parcial').value);
     const nota2Parcial = parseNota(document.getElementById('nota2Parcial').value);
     const notaRecuperatorio = parseNota(document.getElementById('notaRecuperatorio').value);
@@ -644,9 +758,7 @@ function guardarMateria() {
     const observaciones = document.getElementById('materiaObs').value.trim();
 
     const correlativas = [];
-    document.querySelectorAll('#correlativasList input:checked').forEach(cb => {
-        correlativas.push(cb.value);
-    });
+    document.querySelectorAll('#correlativasList input:checked').forEach(cb => correlativas.push(cb.value));
 
     const materia = {
         id, nombre, anio, cuatrimestre, creditos, estado,
@@ -654,76 +766,75 @@ function guardarMateria() {
         fechaAprobacion, observaciones, correlativas,
     };
 
-    const existingIdx = state.materias.findIndex(m => m.id === id);
-    if (existingIdx >= 0) {
-        state.materias[existingIdx] = materia;
+    const idx = state.materias.findIndex(m => m.id === id);
+    if (idx >= 0) {
+        state.materias[idx] = materia;
         toast('Materia actualizada', 'success');
     } else {
         state.materias.push(materia);
         toast('Materia agregada', 'success');
     }
 
-    guardarDatos();
-    cerrarModalMateria();
+    saveState();
+    closeMateriaModal();
     renderAll();
 }
 
-// === EDITAR / ELIMINAR ===
-function editarMateria(id) {
-    abrirModalMateria(id);
-}
-
-function eliminarMateria(id) {
+// ======================== DELETE ========================
+function confirmDeleteMateria(id) {
     const materia = state.materias.find(m => m.id === id);
     if (!materia) return;
 
-    const modal = document.getElementById('modalConfirm');
     document.getElementById('confirmMsg').textContent =
-        `¿Estás seguro de eliminar "${materia.nombre}"? Esta acción no se puede deshacer.`;
+        `¿Eliminar "${materia.nombre}"? Esta acción no se puede deshacer.`;
 
+    const modal = document.getElementById('modalConfirm');
     modal.classList.remove('hidden');
 
     const btnOk = document.getElementById('confirmOk');
-    // Remove old listeners
     const newBtn = btnOk.cloneNode(true);
     btnOk.parentNode.replaceChild(newBtn, btnOk);
 
     newBtn.addEventListener('click', () => {
         state.materias = state.materias.filter(m => m.id !== id);
-        // Remove from correlativas
         state.materias.forEach(m => {
             m.correlativas = (m.correlativas || []).filter(cId => cId !== id);
         });
-        guardarDatos();
+        saveState();
         renderAll();
-        modal.classList.add('hidden');
+        closeConfirmModal();
         toast('Materia eliminada', 'info');
     });
 }
 
-// === FILTROS ===
+function closeConfirmModal() {
+    document.getElementById('modalConfirm').classList.add('hidden');
+}
+
+// ======================== FILTERS ========================
 function initFilters() {
     document.getElementById('filtroAnio').addEventListener('change', renderPlan);
     document.getElementById('filtroCuatri').addEventListener('change', renderPlan);
+    document.getElementById('filtroPlanEstado').addEventListener('change', renderPlan);
     document.getElementById('filtroEstado').addEventListener('change', renderMaterias);
     document.getElementById('buscarMateria').addEventListener('input', renderMaterias);
 }
 
-function updateFiltroAnios() {
+function updateFilterYears() {
     const select = document.getElementById('filtroAnio');
     const current = select.value;
-    select.innerHTML = '<option value="">Todos los años</option>';
+    select.innerHTML = '<option value="">Todos</option>';
     for (let i = 1; i <= state.config.duracion; i++) {
-        select.innerHTML += `<option value="${i}" ${current == i ? 'selected' : ''}>Año ${i}</option>`;
+        select.innerHTML += `<option value="${i}" ${current == i ? 'selected' : ''}>${i}° Año</option>`;
     }
 }
 
-// === CONFIGURACIÓN ===
+// ======================== CONFIG ========================
 function initConfig() {
-    document.getElementById('btnGuardarConfig').addEventListener('click', guardarConfig);
-    document.getElementById('btnExportar').addEventListener('click', exportarDatos);
-    document.getElementById('btnImportar').addEventListener('change', importarDatos);
-    document.getElementById('btnReset').addEventListener('click', resetDatos);
+    document.getElementById('btnGuardarConfig').addEventListener('click', saveConfig);
+    document.getElementById('btnExportar').addEventListener('click', exportData);
+    document.getElementById('btnImportar').addEventListener('change', importData);
+    document.getElementById('btnReset').addEventListener('click', resetData);
 }
 
 function loadConfigForm() {
@@ -734,45 +845,43 @@ function loadConfigForm() {
     document.getElementById('configNotaMax').value = state.config.notaMax || 10;
 }
 
-function guardarConfig() {
+function saveConfig() {
     state.config.carrera = document.getElementById('configCarrera').value.trim();
     state.config.universidad = document.getElementById('configUniversidad').value.trim();
     state.config.duracion = parseInt(document.getElementById('configDuracion').value) || 5;
     state.config.notaMin = parseInt(document.getElementById('configNotaMin').value) || 4;
     state.config.notaMax = parseInt(document.getElementById('configNotaMax').value) || 10;
-
-    guardarDatos();
+    saveState();
     renderAll();
     toast('Configuración guardada', 'success');
 }
 
-function exportarDatos() {
-    const data = JSON.stringify(state, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
+function exportData() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mi-carrera-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `unitrack-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast('Datos exportados', 'success');
 }
 
-function importarDatos(e) {
+function importData(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = evt => {
         try {
             const data = JSON.parse(evt.target.result);
-            if (data.config && data.materias) {
-                state = data;
-                guardarDatos();
+            if (data.config && Array.isArray(data.materias)) {
+                state = { config: { ...state.config, ...data.config }, materias: data.materias };
+                saveState();
                 renderAll();
                 toast('Datos importados correctamente', 'success');
             } else {
-                toast('Archivo inválido', 'error');
+                toast('El archivo no tiene el formato correcto', 'error');
             }
         } catch {
             toast('Error al leer el archivo', 'error');
@@ -782,11 +891,11 @@ function importarDatos(e) {
     e.target.value = '';
 }
 
-function resetDatos() {
-    const modal = document.getElementById('modalConfirm');
+function resetData() {
     document.getElementById('confirmMsg').textContent =
-        '¿Estás seguro de borrar TODOS los datos? Esta acción no se puede deshacer.';
+        '¿Borrar TODOS los datos? Esta acción es irreversible.';
 
+    const modal = document.getElementById('modalConfirm');
     modal.classList.remove('hidden');
 
     const btnOk = document.getElementById('confirmOk');
@@ -798,16 +907,16 @@ function resetDatos() {
             config: { carrera: '', universidad: '', duracion: 5, notaMin: 4, notaMax: 10 },
             materias: [],
         };
-        guardarDatos();
+        saveState();
         renderAll();
-        modal.classList.add('hidden');
-        toast('Datos borrados', 'info');
+        closeConfirmModal();
+        toast('Todos los datos fueron borrados', 'info');
     });
 }
 
-// === UTILIDADES ===
-function generarId() {
-    return 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
+// ======================== UTILITIES ========================
+function genId() {
+    return 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
 }
 
 function parseNota(val) {
@@ -816,41 +925,48 @@ function parseNota(val) {
     return isNaN(n) ? null : n;
 }
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+function esc(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
 }
 
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
-    if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
 }
 
-// === TOAST NOTIFICATIONS ===
-function toast(message, type = 'info') {
-    let container = document.querySelector('.toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
+function getNotaColorClass(nota) {
+    if (nota == null || nota === '') return '';
+    const n = parseFloat(nota);
+    if (isNaN(n)) return '';
+    if (n >= 7) return 'n-high';
+    if (n >= state.config.notaMin) return 'n-mid';
+    return 'n-low';
+}
 
+// ======================== TOAST ========================
+function toast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
     const t = document.createElement('div');
     t.className = `toast toast-${type}`;
-    t.textContent = message;
+
+    const icons = {
+        success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    };
+
+    t.innerHTML = (icons[type] || icons.info) + `<span>${esc(message)}</span>`;
     container.appendChild(t);
 
     setTimeout(() => {
-        t.remove();
-        if (container.children.length === 0) container.remove();
+        t.classList.add('toast-out');
+        setTimeout(() => t.remove(), 300);
     }, 3000);
 }

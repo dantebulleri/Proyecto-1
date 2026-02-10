@@ -3,207 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Carrera - Seguimiento Académico</title>
+    <title>UniTrack - Seguimiento Académico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2>Mi Carrera</h2>
-            <button class="sidebar-toggle" id="sidebarToggle">&times;</button>
-        </div>
-        <ul class="nav-links">
-            <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
-            <li><a href="#" data-section="plan">Plan de Estudios</a></li>
-            <li><a href="#" data-section="materias">Mis Materias</a></li>
-            <li><a href="#" data-section="estadisticas">Estadísticas</a></li>
-            <li><a href="#" data-section="config">Configuración</a></li>
-        </ul>
-    </nav>
 
-    <main class="main-content" id="mainContent">
-        <header class="top-bar">
-            <button class="menu-btn" id="menuBtn">&#9776;</button>
-            <h1 id="pageTitle">Dashboard</h1>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/>
+                </svg>
+            </div>
+            <span class="brand-name">UniTrack</span>
+            <button class="sidebar-close" id="sidebarClose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="sidebar-career" id="sidebarCareer">
+            <span class="career-name" id="sidebarCareerName">Configurá tu carrera</span>
+            <span class="career-uni" id="sidebarUniName"></span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-section="plan">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span>Plan de Estudios</span>
+            </a>
+            <a href="#" class="nav-item" data-section="materias">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                <span>Mis Materias</span>
+            </a>
+            <a href="#" class="nav-item" data-section="estadisticas">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Estadísticas</span>
+            </a>
+            <a href="#" class="nav-item" data-section="config">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Configuración</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-progress">
+                <div class="sidebar-progress-info">
+                    <span>Progreso total</span>
+                    <strong id="sidebarProgressPct">0%</strong>
+                </div>
+                <div class="sidebar-progress-bar">
+                    <div class="sidebar-progress-fill" id="sidebarProgressFill"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- OVERLAY mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN -->
+    <main class="main" id="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <button class="topbar-menu" id="menuBtn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <span class="topbar-subtitle" id="pageSubtitle">Resumen de tu carrera</span>
+            </div>
         </header>
 
-        <!-- DASHBOARD -->
-        <section class="section" id="section-dashboard">
-            <div class="stats-grid">
-                <div class="stat-card stat-primary">
-                    <span class="stat-value" id="statPromedio">-</span>
-                    <span class="stat-label">Promedio General</span>
-                </div>
-                <div class="stat-card stat-success">
-                    <span class="stat-value" id="statAprobadas">0</span>
-                    <span class="stat-label">Materias Aprobadas</span>
-                </div>
-                <div class="stat-card stat-warning">
-                    <span class="stat-value" id="statEnCurso">0</span>
-                    <span class="stat-label">En Curso</span>
-                </div>
-                <div class="stat-card stat-danger">
-                    <span class="stat-value" id="statPendientes">0</span>
-                    <span class="stat-label">Pendientes</span>
-                </div>
-            </div>
+        <div class="content">
 
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>Progreso de la Carrera</h3>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
+            <!-- ==================== DASHBOARD ==================== -->
+            <section class="page" id="section-dashboard">
+                <!-- Stat cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card kpi-purple">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                         </div>
-                        <span class="progress-text" id="progressText">0%</span>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statPromedio">-</span>
+                            <span class="kpi-label">Promedio General</span>
+                        </div>
                     </div>
-                    <div class="progress-details">
-                        <span id="progressDetail">0 de 0 materias completadas</span>
+                    <div class="kpi-card kpi-green">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statAprobadas">0</span>
+                            <span class="kpi-label">Aprobadas</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="card">
-                    <h3>Promedios</h3>
-                    <div class="averages-list">
-                        <div class="average-item">
-                            <span>Promedio sin aplazos</span>
-                            <strong id="avgSinAplazos">-</strong>
+                    <div class="kpi-card kpi-blue">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </div>
-                        <div class="average-item">
-                            <span>Promedio con aplazos</span>
-                            <strong id="avgConAplazos">-</strong>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statEnCurso">0</span>
+                            <span class="kpi-label">En Curso</span>
                         </div>
-                        <div class="average-item">
-                            <span>Nota más alta</span>
-                            <strong id="notaMasAlta">-</strong>
+                    </div>
+                    <div class="kpi-card kpi-orange">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         </div>
-                        <div class="average-item">
-                            <span>Nota más baja (aprobada)</span>
-                            <strong id="notaMasBaja">-</strong>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statPendientes">0</span>
+                            <span class="kpi-label">Pendientes</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3>Rendimiento por Año</h3>
-                    <div class="chart-container" id="chartAnios"></div>
+                <!-- Progress ring + averages -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Progreso de la Carrera</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress-ring-wrapper">
+                                <svg class="progress-ring" viewBox="0 0 140 140">
+                                    <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
+                                    <circle class="progress-ring-fill" id="progressRing" cx="70" cy="70" r="60"/>
+                                    <text x="70" y="64" class="progress-ring-pct" id="progressRingPct">0%</text>
+                                    <text x="70" y="82" class="progress-ring-label">completado</text>
+                                </svg>
+                            </div>
+                            <div class="progress-stats">
+                                <div class="progress-stat">
+                                    <span class="progress-stat-num" id="progressAprobadas">0</span>
+                                    <span class="progress-stat-label">Aprobadas</span>
+                                </div>
+                                <div class="progress-stat-divider"></div>
+                                <div class="progress-stat">
+                                    <span class="progress-stat-num" id="progressTotal">0</span>
+                                    <span class="progress-stat-label">Total</span>
+                                </div>
+                                <div class="progress-stat-divider"></div>
+                                <div class="progress-stat">
+                                    <span class="progress-stat-num" id="progressRestantes">0</span>
+                                    <span class="progress-stat-label">Restantes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Promedios</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="avg-list">
+                                <div class="avg-item">
+                                    <div class="avg-info">
+                                        <span class="avg-label">Promedio sin aplazos</span>
+                                        <span class="avg-desc">Solo materias aprobadas</span>
+                                    </div>
+                                    <span class="avg-value" id="avgSinAplazos">-</span>
+                                </div>
+                                <div class="avg-item">
+                                    <div class="avg-info">
+                                        <span class="avg-label">Promedio con aplazos</span>
+                                        <span class="avg-desc">Incluye todas las notas finales</span>
+                                    </div>
+                                    <span class="avg-value" id="avgConAplazos">-</span>
+                                </div>
+                                <div class="avg-item">
+                                    <div class="avg-info">
+                                        <span class="avg-label">Nota más alta</span>
+                                        <span class="avg-desc" id="mejorMateriaName">-</span>
+                                    </div>
+                                    <span class="avg-value avg-high" id="notaMasAlta">-</span>
+                                </div>
+                                <div class="avg-item">
+                                    <div class="avg-info">
+                                        <span class="avg-label">Nota más baja aprobada</span>
+                                        <span class="avg-desc" id="peorMateriaName">-</span>
+                                    </div>
+                                    <span class="avg-value avg-low" id="notaMasBaja">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <h3>Distribución de Notas</h3>
-                    <div class="chart-container" id="chartNotas"></div>
+                <!-- Charts row -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><h3>Avance por Año</h3></div>
+                        <div class="card-body" id="chartAnios"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>Distribución de Notas Finales</h3></div>
+                        <div class="card-body" id="chartNotas"></div>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- PLAN DE ESTUDIOS -->
-        <section class="section hidden" id="section-plan">
-            <div class="section-header">
-                <h2>Plan de Estudios</h2>
-                <button class="btn btn-primary" id="btnAgregarMateria">+ Agregar Materia</button>
-            </div>
-
-            <div class="filters">
-                <select id="filtroAnio" class="input-select">
-                    <option value="">Todos los años</option>
-                </select>
-                <select id="filtroCuatri" class="input-select">
-                    <option value="">Todos los cuatrimestres</option>
-                    <option value="1">1° Cuatrimestre</option>
-                    <option value="2">2° Cuatrimestre</option>
-                    <option value="anual">Anual</option>
-                </select>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table" id="tablaPlan">
-                    <thead>
-                        <tr>
-                            <th>Materia</th>
-                            <th>Año</th>
-                            <th>Cuatrimestre</th>
-                            <th>Horas/Créditos</th>
-                            <th>Correlativas</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bodyPlan"></tbody>
-                </table>
-            </div>
-            <p class="empty-msg hidden" id="emptyPlan">No hay materias cargadas. Agregá tu primera materia para comenzar.</p>
-        </section>
-
-        <!-- MIS MATERIAS (detalle de notas) -->
-        <section class="section hidden" id="section-materias">
-            <div class="section-header">
-                <h2>Mis Materias - Detalle de Notas</h2>
-            </div>
-
-            <div class="filters">
-                <select id="filtroEstado" class="input-select">
-                    <option value="">Todos los estados</option>
-                    <option value="aprobada">Aprobadas</option>
-                    <option value="cursando">Cursando</option>
-                    <option value="pendiente">Pendientes</option>
-                    <option value="libre">Libre</option>
-                </select>
-                <input type="text" id="buscarMateria" class="input-text" placeholder="Buscar materia...">
-            </div>
-
-            <div class="materias-cards" id="materiasCards"></div>
-            <p class="empty-msg hidden" id="emptyMaterias">No hay materias que coincidan con el filtro.</p>
-        </section>
-
-        <!-- ESTADÍSTICAS -->
-        <section class="section hidden" id="section-estadisticas">
-            <div class="section-header">
-                <h2>Estadísticas</h2>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-value" id="statTotalMaterias">0</span>
-                    <span class="stat-label">Total Materias</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statPorcentaje">0%</span>
-                    <span class="stat-label">Completado</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statMejorMateria">-</span>
-                    <span class="stat-label">Mejor Nota</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statPromedioAprobadas">-</span>
-                    <span class="stat-label">Promedio Aprobadas</span>
-                </div>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="card full-width">
-                    <h3>Progreso por Año</h3>
-                    <div id="progressPorAnio"></div>
+            <!-- ==================== PLAN DE ESTUDIOS ==================== -->
+            <section class="page hidden" id="section-plan">
+                <div class="page-actions">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label>Año</label>
+                            <select id="filtroAnio" class="select"><option value="">Todos</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Cuatrimestre</label>
+                            <select id="filtroCuatri" class="select">
+                                <option value="">Todos</option>
+                                <option value="1">1er Cuatrimestre</option>
+                                <option value="2">2do Cuatrimestre</option>
+                                <option value="anual">Anual</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Estado</label>
+                            <select id="filtroPlanEstado" class="select">
+                                <option value="">Todos</option>
+                                <option value="aprobada">Aprobada</option>
+                                <option value="cursando">Cursando</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="libre">Libre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-icon-left" id="btnAgregarMateria">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Agregar Materia
+                    </button>
                 </div>
 
-                <div class="card">
-                    <h3>Materias por Estado</h3>
-                    <div class="chart-container" id="chartEstados"></div>
-                </div>
-
-                <div class="card">
-                    <h3>Historial de Notas</h3>
-                    <div class="chart-container" id="chartHistorial"></div>
-                </div>
-
-                <div class="card full-width">
-                    <h3>Detalle Completo</h3>
-                    <div class="table-container">
-                        <table class="data-table">
+                <div class="card" id="planTableCard">
+                    <div class="table-wrap">
+                        <table class="table" id="tablaPlan">
                             <thead>
                                 <tr>
                                     <th>Materia</th>
                                     <th>Año</th>
+                                    <th>Cuatrimestre</th>
+                                    <th>Hs/Créditos</th>
+                                    <th>Correlativas</th>
+                                    <th>Nota Final</th>
+                                    <th>Estado</th>
+                                    <th class="th-actions">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyPlan"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="empty-state hidden" id="emptyPlan">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <h3>No hay materias cargadas</h3>
+                    <p>Empezá agregando las materias de tu plan de estudios para hacer seguimiento de tu carrera.</p>
+                    <button class="btn btn-primary btn-icon-left" id="btnEmptyAdd">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Agregar Primera Materia
+                    </button>
+                </div>
+            </section>
+
+            <!-- ==================== MIS MATERIAS ==================== -->
+            <section class="page hidden" id="section-materias">
+                <div class="page-actions">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label>Estado</label>
+                            <select id="filtroEstado" class="select">
+                                <option value="">Todos</option>
+                                <option value="aprobada">Aprobadas</option>
+                                <option value="cursando">Cursando</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="libre">Libre</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-search">
+                            <label>Buscar</label>
+                            <div class="search-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="buscarMateria" class="input" placeholder="Nombre de materia...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="materias-grid" id="materiasCards"></div>
+
+                <div class="empty-state hidden" id="emptyMaterias">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <h3>Sin resultados</h3>
+                    <p>No hay materias que coincidan con el filtro seleccionado.</p>
+                </div>
+            </section>
+
+            <!-- ==================== ESTADÍSTICAS ==================== -->
+            <section class="page hidden" id="section-estadisticas">
+                <div class="kpi-grid">
+                    <div class="kpi-card kpi-slate">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statTotalMaterias">0</span>
+                            <span class="kpi-label">Total Materias</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-green">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statPorcentaje">0%</span>
+                            <span class="kpi-label">Completado</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-purple">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statMejorNota">-</span>
+                            <span class="kpi-label">Mejor Nota</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-blue">
+                        <div class="kpi-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="statPromedioAprobadas">-</span>
+                            <span class="kpi-label">Promedio Aprobadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3>Progreso por Año</h3></div>
+                    <div class="card-body" id="progressPorAnio"></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><h3>Materias por Estado</h3></div>
+                        <div class="card-body" id="chartEstados"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>Últimas Notas</h3></div>
+                        <div class="card-body" id="chartHistorial"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3>Detalle Completo</h3></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Año</th>
+                                    <th>Cuatri</th>
                                     <th>Estado</th>
                                     <th>Nota Final</th>
                                     <th>Fecha</th>
@@ -213,89 +386,109 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- CONFIGURACIÓN -->
-        <section class="section hidden" id="section-config">
-            <div class="section-header">
-                <h2>Configuración</h2>
-            </div>
+            <!-- ==================== CONFIGURACIÓN ==================== -->
+            <section class="page hidden" id="section-config">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><h3>Datos de la Carrera</h3></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Carrera</label>
+                                <input type="text" id="configCarrera" class="input" placeholder="Ej: Ingeniería en Sistemas">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Universidad / Institución</label>
+                                <input type="text" id="configUniversidad" class="input" placeholder="Ej: Universidad Nacional de...">
+                            </div>
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label">Duración (años)</label>
+                                    <input type="number" id="configDuracion" class="input" min="1" max="10" value="5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nota mínima para aprobar</label>
+                                    <input type="number" id="configNotaMin" class="input" min="1" max="10" value="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Escala de notas máxima</label>
+                                <input type="number" id="configNotaMax" class="input" min="5" max="100" value="10">
+                            </div>
+                            <button class="btn btn-primary" id="btnGuardarConfig">Guardar Configuración</button>
+                        </div>
+                    </div>
 
-            <div class="card">
-                <h3>Datos de la Carrera</h3>
-                <div class="form-group">
-                    <label>Nombre de la Carrera</label>
-                    <input type="text" id="configCarrera" class="input-text" placeholder="Ej: Ingeniería en Sistemas">
+                    <div class="card">
+                        <div class="card-header"><h3>Gestión de Datos</h3></div>
+                        <div class="card-body">
+                            <p class="text-muted mb-16">Exportá tus datos para tener un backup o importá desde un archivo previo.</p>
+                            <div class="config-btn-group">
+                                <button class="btn btn-outline btn-icon-left" id="btnExportar">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    Exportar JSON
+                                </button>
+                                <label class="btn btn-outline btn-icon-left">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Importar JSON
+                                    <input type="file" id="btnImportar" accept=".json" hidden>
+                                </label>
+                            </div>
+                            <hr class="divider">
+                            <p class="text-muted mb-16">Cuidado: esta acción es irreversible.</p>
+                            <button class="btn btn-danger btn-icon-left" id="btnReset">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                Borrar Todos los Datos
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Universidad</label>
-                    <input type="text" id="configUniversidad" class="input-text" placeholder="Ej: Universidad Nacional...">
-                </div>
-                <div class="form-group">
-                    <label>Duración (años)</label>
-                    <input type="number" id="configDuracion" class="input-text" min="1" max="10" value="5">
-                </div>
-                <div class="form-group">
-                    <label>Nota mínima para aprobar</label>
-                    <input type="number" id="configNotaMin" class="input-text" min="1" max="10" value="4">
-                </div>
-                <div class="form-group">
-                    <label>Escala de notas máxima</label>
-                    <input type="number" id="configNotaMax" class="input-text" min="5" max="100" value="10">
-                </div>
-                <button class="btn btn-primary" id="btnGuardarConfig">Guardar Configuración</button>
-            </div>
+            </section>
 
-            <div class="card">
-                <h3>Datos</h3>
-                <div class="config-actions">
-                    <button class="btn btn-secondary" id="btnExportar">Exportar Datos (JSON)</button>
-                    <label class="btn btn-secondary">
-                        Importar Datos
-                        <input type="file" id="btnImportar" accept=".json" hidden>
-                    </label>
-                    <button class="btn btn-danger" id="btnReset">Borrar Todos los Datos</button>
-                </div>
-            </div>
-        </section>
+        </div><!-- /content -->
     </main>
 
-    <!-- MODAL: Agregar/Editar Materia -->
-    <div class="modal-overlay hidden" id="modalMateria">
-        <div class="modal">
+    <!-- ==================== MODAL: MATERIA ==================== -->
+    <div class="modal-backdrop hidden" id="modalMateria">
+        <div class="modal" role="dialog">
             <div class="modal-header">
                 <h3 id="modalMateriaTitle">Agregar Materia</h3>
-                <button class="modal-close" id="modalMateriaClose">&times;</button>
+                <button class="modal-x" id="modalMateriaClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="materiaId">
+
                 <div class="form-group">
-                    <label>Nombre de la Materia *</label>
-                    <input type="text" id="materiaNombre" class="input-text" placeholder="Ej: Análisis Matemático I" required>
+                    <label class="form-label">Nombre de la Materia <span class="required">*</span></label>
+                    <input type="text" id="materiaNombre" class="input" placeholder="Ej: Análisis Matemático I">
                 </div>
-                <div class="form-row">
+
+                <div class="form-row-2">
                     <div class="form-group">
-                        <label>Año *</label>
-                        <select id="materiaAnio" class="input-select"></select>
+                        <label class="form-label">Año <span class="required">*</span></label>
+                        <select id="materiaAnio" class="select"></select>
                     </div>
                     <div class="form-group">
-                        <label>Cuatrimestre *</label>
-                        <select id="materiaCuatri" class="input-select">
-                            <option value="1">1° Cuatrimestre</option>
-                            <option value="2">2° Cuatrimestre</option>
+                        <label class="form-label">Cuatrimestre <span class="required">*</span></label>
+                        <select id="materiaCuatri" class="select">
+                            <option value="1">1er Cuatrimestre</option>
+                            <option value="2">2do Cuatrimestre</option>
                             <option value="anual">Anual</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-row">
+
+                <div class="form-row-2">
                     <div class="form-group">
-                        <label>Horas / Créditos</label>
-                        <input type="number" id="materiaCreditos" class="input-text" min="0" value="0">
+                        <label class="form-label">Horas / Créditos</label>
+                        <input type="number" id="materiaCreditos" class="input" min="0" value="0">
                     </div>
                     <div class="form-group">
-                        <label>Estado</label>
-                        <select id="materiaEstado" class="input-select">
+                        <label class="form-label">Estado</label>
+                        <select id="materiaEstado" class="select">
                             <option value="pendiente">Pendiente</option>
                             <option value="cursando">Cursando</option>
                             <option value="aprobada">Aprobada</option>
@@ -303,73 +496,81 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Correlativas (seleccionar materias previas)</label>
-                    <div class="correlativas-list" id="correlativasList"></div>
+                    <label class="form-label">Correlativas</label>
+                    <div class="correlativas-box" id="correlativasList"></div>
                 </div>
 
-                <!-- Sección notas: visible según estado -->
-                <div id="seccionNotas">
-                    <h4>Notas</h4>
-                    <div class="form-row">
+                <!-- NOTAS -->
+                <div id="seccionNotas" class="notas-section">
+                    <div class="section-divider">
+                        <span>Notas y Calificaciones</span>
+                    </div>
+                    <div class="form-row-2">
                         <div class="form-group">
-                            <label>1° Parcial</label>
-                            <input type="number" id="nota1Parcial" class="input-text" min="0" max="10" step="0.5">
+                            <label class="form-label">1er Parcial</label>
+                            <input type="number" id="nota1Parcial" class="input" min="0" max="10" step="0.01">
                         </div>
                         <div class="form-group">
-                            <label>2° Parcial</label>
-                            <input type="number" id="nota2Parcial" class="input-text" min="0" max="10" step="0.5">
+                            <label class="form-label">2do Parcial</label>
+                            <input type="number" id="nota2Parcial" class="input" min="0" max="10" step="0.01">
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row-2">
                         <div class="form-group">
-                            <label>Recuperatorio</label>
-                            <input type="number" id="notaRecuperatorio" class="input-text" min="0" max="10" step="0.5">
+                            <label class="form-label">Recuperatorio</label>
+                            <input type="number" id="notaRecuperatorio" class="input" min="0" max="10" step="0.01">
                         </div>
                         <div class="form-group">
-                            <label>Trabajo Práctico</label>
-                            <input type="number" id="notaTP" class="input-text" min="0" max="10" step="0.5">
+                            <label class="form-label">Trabajo Práctico</label>
+                            <input type="number" id="notaTP" class="input" min="0" max="10" step="0.01">
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row-2">
                         <div class="form-group">
-                            <label>Final</label>
-                            <input type="number" id="notaFinal" class="input-text" min="0" max="10" step="0.5">
+                            <label class="form-label">Nota Final</label>
+                            <input type="number" id="notaFinal" class="input" min="0" max="10" step="0.01">
                         </div>
                         <div class="form-group">
-                            <label>Fecha de aprobación</label>
-                            <input type="date" id="fechaAprobacion" class="input-text">
+                            <label class="form-label">Fecha de Aprobación</label>
+                            <input type="date" id="fechaAprobacion" class="input">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Observaciones</label>
-                        <textarea id="materiaObs" class="input-text" rows="2" placeholder="Notas adicionales..."></textarea>
+                        <label class="form-label">Observaciones</label>
+                        <textarea id="materiaObs" class="input textarea" rows="2" placeholder="Notas adicionales..."></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="modalMateriaCancel">Cancelar</button>
-                <button class="btn btn-primary" id="modalMateriaSave">Guardar</button>
+                <button class="btn btn-ghost" id="modalMateriaCancel">Cancelar</button>
+                <button class="btn btn-primary" id="modalMateriaSave">Guardar Materia</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Confirmación -->
-    <div class="modal-overlay hidden" id="modalConfirm">
-        <div class="modal modal-sm">
+    <!-- MODAL: CONFIRMACIÓN -->
+    <div class="modal-backdrop hidden" id="modalConfirm">
+        <div class="modal modal-sm" role="dialog">
             <div class="modal-header">
-                <h3>Confirmar</h3>
-                <button class="modal-close" id="modalConfirmClose">&times;</button>
+                <h3>Confirmar acción</h3>
+                <button class="modal-x" id="modalConfirmClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
             <div class="modal-body">
                 <p id="confirmMsg">¿Estás seguro?</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="confirmCancel">Cancelar</button>
+                <button class="btn btn-ghost" id="confirmCancel">Cancelar</button>
                 <button class="btn btn-danger" id="confirmOk">Confirmar</button>
             </div>
         </div>
     </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="js/app.js"></script>
 </body>
